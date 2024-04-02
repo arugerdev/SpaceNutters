@@ -16,6 +16,11 @@ config/features=PackedStringArray("4.2", "Forward Plus")
 run/max_fps=100
 boot_splash/show_image=false
 
+[audio]
+
+driver/enable_input=true
+driver/mix_rate=48000
+
 [display]
 
 window/size/mode=2
@@ -81,3 +86,7 @@ shoot={
 [internationalization]
 
 locale/locale_filter_mode=0
+
+[rendering]
+
+occlusion_culling/use_occlusion_culling=true

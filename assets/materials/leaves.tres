@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://3rsm6e5k3rtt"]
+
+[ext_resource type="Shader" path="res://assets/shaders/leaves.gdshader" id="1_i3w33"]
+[ext_resource type="Texture2D" uid="uid://bxnyd5axvgggo" path="res://assets/textures/leavesbrushapha256.png" id="2_6c51m"]
+
+[resource]
+render_priority = 1
+shader = ExtResource("1_i3w33")
+shader_parameter/foliage_colour = Color(0.13, 0.33, 0.25, 1)
+shader_parameter/foliage_texture = ExtResource("2_6c51m")

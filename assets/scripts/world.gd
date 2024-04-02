@@ -19,7 +19,6 @@ func _process(delta):
 	
 	if (players.size() > 1): 
 		players[0].set_infectation.rpc(true)
-		print(players[0].infected)
 		started = true
 	
 
