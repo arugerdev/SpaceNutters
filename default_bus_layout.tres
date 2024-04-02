@@ -1,0 +1,31 @@
+[gd_resource type="AudioBusLayout" load_steps=4 format=3 uid="uid://i0alaenlxj77"]
+
+[sub_resource type="AudioEffectCapture" id="AudioEffectCapture_8bi7r"]
+resource_name = "Capture"
+
+[sub_resource type="AudioEffectStereoEnhance" id="AudioEffectStereoEnhance_p6qo6"]
+resource_name = "StereoEnhance"
+surround = 0.5
+
+[sub_resource type="AudioEffectLimiter" id="AudioEffectLimiter_5nrri"]
+resource_name = "Limiter"
+
+[resource]
+bus/1/name = &"Mute Bus"
+bus/1/solo = false
+bus/1/mute = true
+bus/1/bypass_fx = false
+bus/1/volume_db = 0.0
+bus/1/send = &"Master"
+bus/2/name = &"Record"
+bus/2/solo = false
+bus/2/mute = false
+bus/2/bypass_fx = false
+bus/2/volume_db = 0.0
+bus/2/send = &"Mute Bus"
+bus/2/effect/0/effect = SubResource("AudioEffectCapture_8bi7r")
+bus/2/effect/0/enabled = true
+bus/2/effect/1/effect = SubResource("AudioEffectStereoEnhance_p6qo6")
+bus/2/effect/1/enabled = false
+bus/2/effect/2/effect = SubResource("AudioEffectLimiter_5nrri")
+bus/2/effect/2/enabled = false
