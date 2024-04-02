@@ -15,6 +15,7 @@ extends CharacterBody3D
 @onready var animation_tree = $AnimationTree
 @onready var playerName = $neck/head/PlayerName
 @onready var kickingArea = $neck/head/eyes/Camera3D/Area3D
+@onready var audioManager = $AudioManager
 
 # Speed vars
 var current_speed = 5.0
@@ -69,17 +70,24 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 # Game vars
 var infected = false
+var dancing = false
 var state = {
 			"id":0,
+			"username":str("Tesseract_00"),
 			"velocity": Vector3.ZERO,
 			"pos": Vector3.ZERO,
 			"inAir": false,
 			"crouching": false,
 			"sliding": false,
-			"hardLanding": false
+			"hardLanding": false,
+			"dancing": false
 			}
+			
+var username = str("Tesseract_00")
 
 func _ready():
+	audioManager.setupAudio(str(name).to_int())	
+	
 	if not is_multiplayer_authority(): 
 		infected_label.hide()
 		$neck/head/eyes/Camera3D/LabelID.hide()
@@ -123,14 +131,18 @@ func _physics_process(delta):
 	
 	var input_dir = Input.get_vector("left", "right", "forward", "backward")
 	
+	username = str( "Tesseract_" + var_to_str(multiplayer.get_unique_id()))
+	
 	state = {
 		"id": multiplayer.get_unique_id(),
+		"username": username,
 		"velocity": input_dir.normalized() * current_speed / walking_speed,
 		"position": position,
 		"inAir": !is_on_floor(),
 		"crouching": crouching,
 		"sliding": sliding,
-		"hardLanding": hard_landing
+		"hardLanding": hard_landing,
+		"dancing": dancing
 		}
 	
 	# Handle Movement State
@@ -285,18 +297,24 @@ func _physics_process(delta):
 
 func _process(delta):
 	
+	if dancing && velocity.length_squared() > 0.25:
+		dancing = false
+	
 	if position.y <= -100:
 		position = Vector3.UP
 		velocity = Vector3.ZERO
 		last_velocity = Vector3.ZERO
 	
-	playerName.text = var_to_str(state.id)
+	playerName.text = state.username
 	updateAnimations(delta)
 	
 	if not is_multiplayer_authority():
 		var mat : ShaderMaterial = mesh.get_surface_override_material(0).get_next_pass()
 		mat.set_shader_parameter("enable", infected) 
 		return
+		
+	if Input.is_key_pressed(KEY_B):
+		dancing = true
 		
 	for p in multiplayer.get_peers():
 		updateData.rpc_id(p,state)
@@ -323,6 +341,10 @@ func updateAnimations(delta):
 	animation_tree.set("parameters/conditions/standing", (!state.crouching && !state.sliding))
 	animation_tree.set("parameters/conditions/slidingToCrouch", (state.crouching && !state.sliding))
 	
+	animation_tree.active = !state.dancing
+	if state.dancing:
+		animation_player_skin.play("Dancing Running Man/mixamo_com")
+	
 @rpc("call_local","any_peer")
 func set_infectation(value):
 	infected = value
@@ -333,14 +355,16 @@ func updateData(value):
 		if player == multiplayer.get_remote_sender_id():
 			get_node("/root/").find_child(var_to_str(player), true, false).state = value
 	
-
-	
 @rpc("call_local","any_peer")
 func kickedDash(dir, force):
 	last_velocity += dir * force
 	velocity += dir * force
 	move_and_slide()
 
+@rpc("call_local","any_peer")
+func recibeVoice(voice, pos):
+	pass
+	
 
 func _on_area_3d_body_entered(body):
 	if !isKiking || body == $".":
